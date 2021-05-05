@@ -32,7 +32,7 @@ Use backspace to exit the package manager
 
 To run any of the models, use the `include()` function
 ```
-include("LP_model.jl")
-include("MIP_model.jl")
-include("Flexible.jl")
+julia> include("LP_model.jl")
+julia> include("MIP_model.jl")
+julia> include("Flexible.jl")
 ```
