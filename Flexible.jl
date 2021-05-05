@@ -76,26 +76,45 @@ for date in dates, op in keys(units)
 end
 
 # General constraints
-# Constraint per output type
+# Production should meet demand
 for op in keys(units)
     for d in dates
         @constraint(model, sum(unit_powers[d, op, :]) + dummy_power[d, op] .== demand_data[!, op][d])
     end
 end
 
-# HP heat availability constraint
-# Wind availability constraint
+# Resource limitations
+for op in keys(units)
+    for d in 1:n_dates, uname in keys(units[op])
+        date = dates[d]
+        resource_type = units[op][uname]["resource"]
+        if typeof(resource_type) != Missing
+            resource_eff = units[op][uname]["resource_eff"]
+            @constraint(model, unit_powers[date, op, uname] .<= supply_data[!, resource_type][d] .* resource_eff)
+        end
+    end
+end
+
 # CHP constraint
+# Still not implemented
 
 #VOM_cost = VOM_cost .* unit states?
 @expression(model, vom_costs[d in dates, op in keys(units), uname in keys(units[op])], unit_states[d, op, uname] .* units[op][uname]["VOMcost"])
+
 # fuel_cost = power ./ eff .* fuel price
 @expression(model, fuel_costs[d in dates, op in keys(units), uname in keys(units[op])], unit_powers[d, op, uname] ./ units[op][uname]["plant_eff"] .* price_data[!, units[op][uname]["input"]][d])
-@expression(model, cost[d in dates, op in keys(units), uname in keys(units[op])], fuel_costs[d, op, uname] + vom_costs[d, op, uname])
 
+# Dummy power cost
+@expression(model, dummy_cost[d in dates, op in keys(units)], dummy_power[d, op] .* 1000000)
 
+# sell profit
+@expression(model, sell_profit[d in dates, op in keys(units), uname in keys(units[op])], unit_powers[d, op, uname] .* price_data[!, units[op][uname]["output"]][d])
 
+# Emission cost
+# Taxes?
 
+# #Total cost
+# @expression(model, cost[d in dates, op in keys(units), uname in keys(units[op])], fuel_costs[d, op, uname] + vom_costs[d, op, uname])
 
-@objective(model, Min, sum(cost))
+@objective(model, Min, sum(vom_costs) + sum(fuel_costs) + sum(dummy_cost) - sum(sell_profit))
 optimize!(model)
