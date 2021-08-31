@@ -41,16 +41,16 @@ for i in 1:length(unit_data.unit_name)
     end
 end
 
-# Find units
-function find_units(keys, us)
-    relevant_units = []
-    for u in us
-        if u in keys
-            push!(relevant_units, u)
-        end
-    end
-    relevant_units
-end
+# # Find units
+# function find_units(keys, us)
+#     relevant_units = []
+#     for u in us
+#         if u in keys
+#             push!(relevant_units, u)
+#         end
+#     end
+#     relevant_units
+# end
 
 @variable(model, unit_states[dates, k in keys(units), unit_names], Bin, container=DenseAxisArray)
 
@@ -114,7 +114,37 @@ end
 # Taxes?
 
 # #Total cost
-# @expression(model, cost[d in dates, op in keys(units), uname in keys(units[op])], fuel_costs[d, op, uname] + vom_costs[d, op, uname])
+# @expression(model, cost[d in dates], fuel_costs[d, op, uname] + vom_costs[d, op, uname])
 
+
+#Objective function
 @objective(model, Min, sum(vom_costs) + sum(fuel_costs) + sum(dummy_cost) - sum(sell_profit))
+
+# optimize the model
 optimize!(model)
+
+# Demand curve plots
+demand_plot_data = [demand_data[!, n] for n in names(demand_data)][2:end]
+demand_plot_index = names(demand_data)[2:end]
+display(plot(demand_plot_data, seriestype = :scatter,  title="Demand curves", xlabel="Timestep", ylabel="Demand", label=permutedims(demand_plot_index)))
+
+# Production plots
+# production_plot_data = []
+# production_plot_index = []
+# for op in keys(units)
+#     for uname in keys(units[op])
+#         unit_series = value.(unit_powers[:, op, uname])
+#         push!(production_plot_data, unit_series)
+#         push!(production_plot_index, uname)
+#     end
+# end
+
+# Cost plots
+#
+
+
+powers_plot = []
+powers_plot_index = []
+
+total_cost_plot = []
+total_cost_plot_index = []
