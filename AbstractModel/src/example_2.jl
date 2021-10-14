@@ -60,7 +60,8 @@ mutable struct State
 end
 
 struct Node
-    commodity::String
+    commodity::String # For example electricity, heat, status variables, resolutions(?), etc. 
+    commodity_type::Type
     balance::Bool  # 3 options: No, strict balance per t (no storage), and storage balance
     state::State  # state for storage?
     processes::Vector{Any}
@@ -69,14 +70,14 @@ struct Node
 end
 
 struct Process
-    source::Node
-    sink::Node
-    cost::Float64
-    eff::Float64
-    flow::Float64
-    flow_min::Float64
-    flow_max::Float64
-end
+    upstream::Node
+    downstream::Node
+    cost::Float64 ?
+    eff::Float64 ? 
+    flow_min::Float64 ? 
+    flow_max::Float64 ?
+    flow::Float64 ? # Changing variable
+end    
 
 nodes = []
 

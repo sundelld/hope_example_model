@@ -1,5 +1,0 @@
-input;output;unit_name;plant_eff;max_power;min_op_point;min_power;resource;resource_eff;VOMcost
-elec;dh;HP1;3.0;20;0,2;4;HP_heat;3.0;1
-gas;dh;HOB1;0.8;30;0,4;12;;;10
-wind;dh;WindBoiler1;1.0;30;0;0;available_wind;1.0;0
-wind;elec;WindTurb1;1.0;70;0;0;available_wind;1.0;0

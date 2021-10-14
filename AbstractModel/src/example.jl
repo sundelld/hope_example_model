@@ -9,7 +9,7 @@ t_start = Dates.now()
 print("Building problem\n")
 
 # Include file
-include(".\\src\\SimpleModel.jl")
+include(".\\src\\structures.jl")
 
 # Basic settings
 model = JuMP.Model(Cbc.Optimizer)
