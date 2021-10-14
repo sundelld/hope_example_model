@@ -86,6 +86,18 @@ end
 #    end
 #end
 
+for n in node()
+    for d in 1:n_dates, uname in unit()
+        resource_type = source(unit=uname)
+        if typeof(resource_type) != Nothing
+            resource_eff = eff(unit=uname) # May need to implement?
+            local resource_flow = flow(node=node(resource_type))
+            resource_flow = map(x -> x[2], collect(resource_flow))
+            @constraint(model, unit_powers[dates[d], n, uname] .<= resource_flow[d].* resource_eff)
+        end
+    end
+end
+
 # CHP constraint
 # Still not implemented
 
@@ -104,6 +116,8 @@ end
 
 #Objective function
 @objective(model, Min, sum(vom_costs) + sum(fuel_costs) + sum(dummy_cost) - sum(sell_profit))
+
+print("Problem built, solving problem...\n")
 
 # optimize the model
 optimize!(model)
