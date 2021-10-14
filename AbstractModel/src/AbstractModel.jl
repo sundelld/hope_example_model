@@ -9,7 +9,7 @@ model = JuMP.Model(Cbc.Optimizer)
 set_optimizer_attributes(model, "LogLevel" => 1, "PrimalTolerance" => 1e-7)
 
 # import input data, assuming data is in .\data\
-input_data_url = "sqlite:///C:\\Users\\dsdennis\\HOPE\\Predicer\\input_data\\input_data.sqlite"
+input_data_url = #"\\Predicer\\input_data\\input_data.sqlite"
 using_spinedb(input_data_url)
 
 # Dates For indices use 1:n_dates
