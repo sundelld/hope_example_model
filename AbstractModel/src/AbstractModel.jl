@@ -13,7 +13,7 @@ input_data_url = "sqlite:///C:\\Users\\dsdennis\\HOPE\\Predicer\\input_data\\inp
 using_spinedb(input_data_url)
 
 # Dates For indices use 1:n_dates
-dates = map(x -> x[1], collect(price(commodity=commodity(:elec))))
+dates = map(x -> x[1], collect(price(resource=resource(:elec))))
 n_dates = length(dates)
 
 processes = []
@@ -23,12 +23,12 @@ temporals = dates
 directions = [-1, 1]
 
 for n in node()
-    push!(nodes, Node(n, string(n), string(commodity_node(node=n)[1]), !Bool(balance(node=n)), collect(map(x -> x[2], price(commodity=commodity_node(node=n)[1]))), Bool(balance(node=n))))
+    push!(nodes, Node(n, string(n), string(resource_node(node=n)[1]), !Bool(is_commodity(resource=resource_node(node=n)[1])), collect(map(x -> x[2], price(resource=resource_node(node=n)[1]))), Bool(has_balance(node=n))))
 end
 
-for uname in unit()
-    p = Process(uname, string(uname), eff(unit=uname), min_load(unit=uname), max_load(unit=uname), capacity(unit=uname), VOM_cost(unit=uname))
-    sources_and_sinks = input_node__unit__output_node(unit=uname)
+for pname in process()
+    p = Process(pname, string(pname), online(process=pname), eff(process=pname), min_load(process=pname), max_load(process=pname), capacity(process=pname), VOM_cost(process=pname), ramp_up(process=pname), ramp_down(process=pname), source(process=pname))
+    sources_and_sinks = input_node__process__output_node(process=pname)
     for n in nodes, s in sources_and_sinks
         if n.db_entry == map(x-> x[1], sources_and_sinks)[1]
             push!(p.sources, n)
@@ -38,33 +38,12 @@ for uname in unit()
     end
     push!(processes, p)
 end
-
-for ntn in node__transfer__node()
-    tobj = ntn[2]
-    p_from = Process(tobj, string(tobj), 1.0 - losses(transfer_object=tobj), 0.0, 1.0, cap_from(transfer_object=tobj), 0)
-    for n in nodes
-        if n.db_entry == ntn[1]
-            push!(p_from.sources, n)
-        elseif n.db_entry == ntn[3]
-            push!(p_from.sinks, n)
-        end
-    end
-    p_to = Process(tobj, string(tobj), 1.0 - losses(transfer_object=tobj), 0.0, 1.0, cap_to(transfer_object=tobj), 0)
-    for n in nodes
-        if n.db_entry == ntn[3]
-            push!(p_to.sources, n)
-        elseif n.db_entry == ntn[1]
-            push!(p_to.sinks, n)
-        end
-    end
-    push!(processes, p_from)
-    push!(processes, p_to)
-end
+#function Process(db_entry, type, online, eff, load_min, load_max, capacity, VOM_cost, ramp_up, ramp_down, resource)
 
 demand = Demand()
 for n in nodes
     flow_val = flow(node=n.db_entry)
-        balance_val = balance(node=n.db_entry)
+        balance_val = has_balance(node=n.db_entry)
         if typeof(flow_val) != Nothing && balance_val != 0
             flow_val = map(x -> x[2], collect(flow_val))
             push!(demand.demands, (n, flow_val))

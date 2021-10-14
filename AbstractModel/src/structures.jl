@@ -16,15 +16,19 @@ end
 struct Process
     db_entry::Any
     type::String
+    online::Bool
     eff::Float64
     load_min::Float64
     load_max::Float64
     capacity::Float64
     VOM_cost::Float64
+    ramp_up::Float64
+    ramp_down::Float64
+    resource::Any
     sources::Vector{Node}
     sinks::Vector{Node}
-    function Process(db_entry, type, eff, load_min, load_max, capacity, VOM_cost)
-        return new(db_entry, type, eff, load_min, load_max, capacity, VOM_cost, [], [])
+    function Process(db_entry, type, online, eff, load_min, load_max, capacity, VOM_cost, ramp_up, ramp_down, resource)
+        return new(db_entry, type, online, eff, load_min, load_max, capacity, VOM_cost, ramp_up, ramp_down, resource, [], [])
     end
 end
 
