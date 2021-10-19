@@ -11,7 +11,7 @@ set_optimizer_attributes(model, "LogLevel" => 1, "PrimalTolerance" => 1e-7)
 import_data = true
 if import_data
     # import input data, assuming data is in .\data\
-    input_data_url = #"sqlite:///C:    ....       \\Predicer\\input_data\\input_data.sqlite"
+    input_data_url = "sqlite:///C:\\Users\\dsdennis\\HOPE\\Predicer\\input_data\\input_data.sqlite"
     using_spinedb(input_data_url)
 
     # Dates For indices use 1:n_dates
@@ -56,6 +56,9 @@ elseif !import_data
     nodes = r[2]
     processes = r[3]
     demand = r[4]
+    stochastics = [1]
+    temporals = dates
+    directions = [-1, 1]
 end
 
 
